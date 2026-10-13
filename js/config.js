@@ -6,7 +6,7 @@ export const CONFIG = {
   SUPABASE_URL: "https://nvpereotfqmolnusrvzn.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52cGVyZW90ZnFtb2xudXNydnpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5MTE0ODMsImV4cCI6MjEwNzQ4NzQ4M30.9jt4BVPsyFryhlJxUR8wB-QosRlSoidAA4eJmw9l_xI",
   ALLOWED_EMAIL: "roody16jar@gmail.com",
-  APP_VERSION: "0.1.0",
+  APP_VERSION: "0.2.0",
   HOODS_URL: "data/hoods.json",
   STREETS_URL: (hood) => `data/streets/${hood}.json`,
   BOUNDARY_URL: (hood) => `data/boundaries/${hood}.geojson`,

@@ -1,6 +1,6 @@
 // Service worker: offline app shell + street data + libraries, opportunistic map tiles.
 // Supabase requests are never intercepted. Bump VERSION on every deploy.
-const VERSION = "v0.1.0";
+const VERSION = "v0.2.0";
 const DATA_VERSION = "2026-10-13";
 const SHELL = `shell-${VERSION}`, DATA = `data-${DATA_VERSION}`, LIB = "lib-v1", TILES = "tiles-v1";
 const PRECACHE = ["./", "index.html", "css/app.css", "manifest.webmanifest", "icons/icon.svg", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",

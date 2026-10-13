@@ -44,8 +44,9 @@ const log = []; const errors = [];
   await page.goto(BASE, { waitUntil: "networkidle" });
   await page.screenshot({ path: path.join(OUT, "1-setup.png") });
   const setupVisible = await page.locator("#screen-setup").isVisible();
-  console.log("setup screen visible:", setupVisible);
-  await page.fill("#setup-url", SB_URL); await page.fill("#setup-key", KEY); await page.click("#setup-save");
+  console.log("setup screen visible:", setupVisible, "(false when config.js already holds the keys)");
+  if (setupVisible) { await page.fill("#setup-url", SB_URL); await page.fill("#setup-key", KEY); await page.click("#setup-save"); }
+  else { await page.evaluate(([u, k]) => localStorage.setItem("mustakshif.connection", JSON.stringify({ url: u, key: k })), [SB_URL, KEY]); await page.reload(); }
   await page.waitForLoadState("networkidle");
   // 2. login screen
   await page.waitForSelector("#screen-auth:not(.hidden)", { timeout: 15000 });

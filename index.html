@@ -14,6 +14,14 @@
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="">
 <link rel="stylesheet" href="css/app.css">
+<script>
+  // theme before first paint: "dark" (default), "light", or "auto" (follows the phone)
+  (function () { try {
+    var t = localStorage.getItem("mustakshif.theme") || "dark"; var r = document.documentElement; r.dataset.theme = t;
+    var mq = window.matchMedia("(prefers-color-scheme: light)"); var apply = function () { r.classList.toggle("light", t === "auto" && mq.matches); };
+    apply(); mq.addEventListener && mq.addEventListener("change", apply);
+  } catch (e) {} })();
+</script>
 </head>
 <body>
 
@@ -76,10 +84,10 @@
       <div id="map"></div>
       <div class="map-controls">
         <button id="btn-track" class="fab primary" title="بدء / إيقاف التتبع">▶ تتبّع</button>
-        <button id="btn-follow" class="fab" title="مركز الخريطة عليّ">◎</button>
+        <button id="btn-follow" class="fab" title="حدّد موقعي الآن">◎ موقعي</button>
         <button id="btn-add-here" class="fab" title="إضافة عقار في موقعي">＋</button>
       </div>
-      <div id="fix" class="fix muted"></div>
+      <div id="fix" class="fix muted"><span class="hidden"></span></div>
     </section>
 
     <section id="panel-targets" class="panel">
@@ -110,6 +118,10 @@
           <button class="btn" type="submit">تغيير كلمة المرور</button>
         </form>
         <button id="s-logout" class="btn danger">تسجيل الخروج</button>
+      </div>
+      <div class="card flat">
+        <h2>المظهر</h2>
+        <select id="s-theme"><option value="dark">داكن</option><option value="light">فاتح</option><option value="auto">تلقائي مثل الجوال</option></select>
       </div>
       <div class="card flat">
         <h2>المزامنة</h2>

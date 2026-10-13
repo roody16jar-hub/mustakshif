@@ -93,6 +93,14 @@ export const mapView = {
     document.removeEventListener("visibilitychange", relock);
   },
   followMe() { follow = true; if (meMarker) map.setView(meMarker.getLatLng(), Math.max(map.getZoom(), 16)); },
+  /** draw / move the blue "me" marker and centre on it (used by the locate button, no tracking needed) */
+  placeMe(lat, lon, acc, center = true) {
+    if (!meMarker) {
+      meMarker = L.circleMarker([lat, lon], { radius: 8, color: "#fff", weight: 2, fillColor: "#2563eb", fillOpacity: 1 }).addTo(map);
+      meCircle = L.circle([lat, lon], { radius: acc, color: "#2563eb", weight: 1, fillOpacity: 0.08 }).addTo(map);
+    } else { meMarker.setLatLng([lat, lon]); meCircle.setLatLng([lat, lon]).setRadius(acc); }
+    if (center) map.setView([lat, lon], Math.max(map.getZoom(), 17), { animate: true });
+  },
   locateOnce() {
     return new Promise((res, rej) => navigator.geolocation.getCurrentPosition(p => res({ lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy }), rej, { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }));
   },
@@ -102,10 +110,7 @@ async function relock() { if (!document.hidden && watchId != null && navigator.w
 
 function onFix(pos) {
   const { latitude: lat, longitude: lon, accuracy: acc, speed } = pos.coords;
-  if (!meMarker) {
-    meMarker = L.circleMarker([lat, lon], { radius: 8, color: "#fff", weight: 2, fillColor: "#2563eb", fillOpacity: 1 }).addTo(map);
-    meCircle = L.circle([lat, lon], { radius: acc, color: "#2563eb", weight: 1, fillOpacity: 0.08 }).addTo(map);
-  } else { meMarker.setLatLng([lat, lon]); meCircle.setLatLng([lat, lon]).setRadius(acc); }
+  mapView.placeMe(lat, lon, acc, false);
   if (follow) map.setView([lat, lon], Math.max(map.getZoom(), 16), { animate: true });
   trailLayer.addLayer(L.circleMarker([lat, lon], { radius: 2, stroke: false, fillColor: "#2563eb", fillOpacity: 0.5 }));
   if (trailLayer.getLayers().length > 600) trailLayer.removeLayer(trailLayer.getLayers()[0]);

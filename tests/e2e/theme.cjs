@@ -1,0 +1,21 @@
+const { chromium } = require("playwright");
+const b64u = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+(async () => {
+  const UID = "11111111-2222-4333-8444-555555555555", EMAIL = "roody16jar@gmail.com", exp = Math.floor(Date.now() / 1000) + 86400;
+  const JWT = `${b64u({ alg: "HS256", typ: "JWT" })}.${b64u({ sub: UID, email: EMAIL, role: "authenticated", aud: "authenticated", exp })}.sig`;
+  const session = { access_token: JWT, refresh_token: "r", token_type: "bearer", expires_in: 86400, expires_at: exp, user: { id: UID, email: EMAIL, aud: "authenticated", role: "authenticated", app_metadata: {}, user_metadata: {} } };
+  const b = await chromium.launch({ headless: true });
+  const ctx = await b.newContext({ viewport: { width: 430, height: 900 }, locale: "ar-SA", geolocation: { latitude: 24.80, longitude: 46.60, accuracy: 9 }, permissions: ["geolocation"] });
+  const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.route("https://fakeproj.supabase.co/**", r => { const u = new URL(r.request().url()); if (u.pathname.startsWith("/auth/v1/user")) return r.fulfill({ json: session.user }); if (u.pathname.startsWith("/rest/v1/")) return r.fulfill({ json: r.request().method() === "GET" ? [] : JSON.parse(r.request().postData() || "[]") }); return r.fulfill({ json: {} }); });
+  await p.goto("http://127.0.0.1:8765/");
+  await p.evaluate((s) => { localStorage.setItem("mustakshif.connection", JSON.stringify({ url: "https://fakeproj.supabase.co", key: "a".repeat(60) })); localStorage.setItem("sb-fakeproj-auth-token", JSON.stringify(s)); localStorage.setItem("mustakshif.theme", "light"); localStorage.setItem("mustakshif.hood", "malqa"); }, session);
+  await p.reload({ waitUntil: "networkidle" }); await p.waitForSelector("#app:not(.hidden)", { timeout: 20000 });
+  await p.waitForFunction(() => /\d+%/.test(document.querySelector("#coverage").textContent)); await p.waitForTimeout(1500);
+  await p.click("#btn-follow"); await p.waitForTimeout(1500);
+  console.log("theme attr:", await p.evaluate(() => document.documentElement.dataset.theme), "| toast:", await p.textContent("#toast"));
+  await p.screenshot({ path: "shots/9-light-map.png" });
+  await p.click('nav [data-panel="settings"]'); await p.waitForTimeout(300); await p.screenshot({ path: "shots/10-light-settings.png" });
+  console.log("theme select:", await p.inputValue("#s-theme"), "| errors:", errs.length ? errs.join(" | ") : "none");
+  await b.close();
+})().catch(e => { console.log("FAILED", e.message); process.exit(1); });

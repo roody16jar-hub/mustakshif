@@ -94,7 +94,16 @@ function bindStatic() {
   $("#hood").onchange = () => loadHood($("#hood").value);
   // map buttons
   $("#btn-track").onclick = toggleTracking;
-  $("#btn-follow").onclick = () => { mapView.followMe(); };
+  $("#btn-follow").onclick = async () => {
+    if (mapView.tracking()) { mapView.followMe(); return; }
+    toast("جارٍ تحديد الموقع…");
+    try {
+      const p = await mapView.locateOnce();
+      mapView.placeMe(p.lat, p.lon, p.acc);
+      const m = Math.round(p.acc);
+      toast(m <= 20 ? `موقعك محدد، الدقة ${m} م` : m <= 100 ? `الدقة ${m} م: اخرج لمكان مكشوف أو انتظر ثواني` : `الدقة ضعيفة (${m} م): هذا الجهاز بلا GPS، أو خدمات الموقع مغلقة`, 4000);
+    } catch (e) { toast(e && e.code === 1 ? "اسمح للتطبيق بالوصول إلى الموقع من إعدادات الجوال" : "تعذّر تحديد الموقع", 4000); }
+  };
   $("#btn-add-here").onclick = async () => {
     try { toast("جارٍ تحديد الموقع…"); const p = await mapView.locateOnce(); await newProperty(p.lat, p.lon); } catch { toast("تعذّر تحديد الموقع"); }
   };
@@ -115,6 +124,13 @@ function bindStatic() {
     await auth.logout();
   };
   $("#s-sync-now").onclick = () => sync.run();
+  const themeSel = $("#s-theme");
+  themeSel.value = localStorage.getItem("mustakshif.theme") || "dark";
+  themeSel.onchange = () => {
+    localStorage.setItem("mustakshif.theme", themeSel.value);
+    const r = document.documentElement; r.dataset.theme = themeSel.value;
+    r.classList.toggle("light", themeSel.value === "auto" && window.matchMedia("(prefers-color-scheme: light)").matches);
+  };
   $("#s-export").onclick = exportBackup;
   $("#s-import").onchange = (e) => importBackup(e.target.files[0]).finally(() => e.target.value = "");
   $("#s-reset-hood").onclick = resetHood;
@@ -225,14 +241,14 @@ async function resetHood() {
   await loadExplored(); sync.schedule(); toast("تم المسح");
 }
 function onFix(fix, err) {
-  const el = $("#fix");
+  const el = $("#fix span"); el.classList.remove("hidden");
   if (err) { el.textContent = err.code === 1 ? "اسمح للتطبيق بالوصول إلى الموقع من إعدادات الجوال" : "لا توجد إشارة GPS الآن"; return; }
   const kmh = fix.speed != null && fix.speed >= 0 ? Math.round(fix.speed * 3.6) : null;
   el.textContent = `دقة ${Math.round(fix.acc)}م${kmh != null ? " · " + kmh + " كم/س" : ""}${fix.acc > CONFIG.MAX_ACCURACY_METERS ? " · الدقة ضعيفة، لا يُسجَّل" : ""}`;
 }
 async function toggleTracking() {
   const b = $("#btn-track");
-  if (mapView.tracking()) { mapView.stopTracking(); b.classList.remove("on"); b.textContent = "▶ تتبّع"; $("#fix").textContent = ""; sync.schedule(500); }
+  if (mapView.tracking()) { mapView.stopTracking(); b.classList.remove("on"); b.textContent = "▶ تتبّع"; $("#fix span").classList.add("hidden"); sync.schedule(500); }
   else { await mapView.startTracking(); b.classList.add("on"); b.textContent = "■ إيقاف"; toast("التتبع يعمل. أبقِ الشاشة مفتوحة أثناء القيادة."); }
 }
 
