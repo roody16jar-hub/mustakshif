@@ -3,22 +3,15 @@
 تطبيق ويب يعمل من جوالك: تقود في الحي، والخريطة تلوّن الشوارع التي مررت بها، وتسجّل الأهداف والعقارات بالصور وبيانات المالك. كل شيء يُحفظ تلقائياً، يعمل بلا إنترنت، ويتزامن بين أجهزتك.
 
 ## 1. الرابط الحي
-**لم يُنشر بعد.** السبب: لا يوجد تسجيل دخول لـ GitHub ولا لـ Supabase على هذا الجهاز، ولا يمكنني تسجيل الدخول نيابة عنك.
-التطبيق جاهز ويعمل محلياً. الرابط المتوقع بعد النشر: `https://roody16jar-hub.github.io/mustakshif/`
+**https://roody16jar-hub.github.io/mustakshif/**
 
-### الخطوات الثلاث للنشر (10 دقائق)
-1. **Supabase**: تم. المشروع `mustakshif` (طوكيو) موجود، وشغّلت عليه `supabase/schema.sql` مرتين بلا أخطاء، واختبار السياسات `supabase/test_policies.sql` نجح بكل بنوده (anon محجوب تماماً، المستخدم الغريب يرى 0 صفوف ولا يستطيع الإدراج، وإنشاء حساب ببريد آخر مرفوض من قاعدة البيانات). الرابط والمفتاح العام موجودان في `js/config.js`.
-   المتبقي عليك فيه: Authentication > URL Configuration: ضع رابط الموقع في Site URL وأضفه في Redirect URLs (أحاول ضبطه لك بالأداة إن أمكن، انظر PROGRESS-ar.md).
-2. **GitHub**: في الطرفية داخل مجلد المشروع:
-   ```
-   gh auth login
-   git init && git add . && git commit -m "mustakshif"
-   gh repo create mustakshif --public --source=. --push
-   ```
-   ثم في صفحة المستودع: Settings > Pages > Source: **GitHub Actions**. بعد دقيقة يظهر الرابط.
-3. افتح الرابط من آيفونك وأنشئ كلمة المرور (القسم 3).
+يعمل عبر HTTPS ويُظهر شاشة الدخول (تحقّقت بمتصفح آلي: 200، بلا أخطاء). المستودع العام: https://github.com/roody16jar-hub/mustakshif
 
-إن كان GitHub Pages مقفولاً بسبب الفوترة: pages.cloudflare.com > Create > اربط المستودع نفسه، بلا أمر بناء، مجلد الإخراج `/`. مجاني بلا حد زمني ولا بطاقة.
+طريقة النشر: GitHub Pages من الفرع main مباشرة (البناء القديم)، لأن GitHub Actions محجوب بقفل الفوترة على حسابك. كل دفع إلى main يُحدّث الموقع خلال دقيقة تقريباً بلا Actions. إن توقف هذا يوماً، البديل: pages.cloudflare.com > Create > اربط المستودع نفسه، بلا أمر بناء، مجلد الإخراج `/`.
+
+**خطوة واحدة متبقية عليك في Supabase** حتى تعمل رسائل التأكيد ونسيت كلمة المرور: supabase.com > مشروع mustakshif > Authentication > URL Configuration:
+- Site URL: `https://roody16jar-hub.github.io/mustakshif/`
+- Redirect URLs: أضف `https://roody16jar-hub.github.io/mustakshif/**`
 
 ## 2. إضافته إلى شاشة آيفون
 افتح الرابط في **Safari** > زر المشاركة (المربع والسهم) > **إضافة إلى الشاشة الرئيسية** > إضافة. يفتح بعدها كتطبيق بملء الشاشة، ويعمل بلا إنترنت بعد أول فتح.
