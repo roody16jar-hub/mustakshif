@@ -1,0 +1,5 @@
+node_modules/
+tools/fetch.log
+*.local.js
+.env*
+tests/e2e/shots/
