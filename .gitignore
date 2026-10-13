@@ -3,3 +3,5 @@ tools/fetch.log
 *.local.js
 .env*
 tests/e2e/shots/
+supabase/.temp/
+supabase/.branches/

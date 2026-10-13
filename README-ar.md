@@ -7,10 +7,8 @@
 التطبيق جاهز ويعمل محلياً. الرابط المتوقع بعد النشر: `https://roody16jar-hub.github.io/mustakshif/`
 
 ### الخطوات الثلاث للنشر (10 دقائق)
-1. **Supabase**: افتح supabase.com > New project (اسمه mustakshif، الخطة Free، المنطقة Frankfurt أو الأقرب). بعد الإنشاء:
-   - SQL Editor > New query > الصق محتوى `supabase/schema.sql` كاملاً > Run. (ثم الصق `supabase/test_policies.sql` وشغّله: كل الأعداد يجب أن تكون 0.)
-   - Authentication > URL Configuration: ضع رابط الموقع أعلاه في Site URL وفي Redirect URLs.
-   - Project Settings > API: انسخ Project URL و anon public key وضعهما في `js/config.js` في السطرين `SUPABASE_URL` و `SUPABASE_ANON_KEY`. (أو اتركهما فارغين والصقهما في شاشة الإعداد عند أول فتح.)
+1. **Supabase**: تم. المشروع `mustakshif` (طوكيو) موجود، وشغّلت عليه `supabase/schema.sql` مرتين بلا أخطاء، واختبار السياسات `supabase/test_policies.sql` نجح بكل بنوده (anon محجوب تماماً، المستخدم الغريب يرى 0 صفوف ولا يستطيع الإدراج، وإنشاء حساب ببريد آخر مرفوض من قاعدة البيانات). الرابط والمفتاح العام موجودان في `js/config.js`.
+   المتبقي عليك فيه: Authentication > URL Configuration: ضع رابط الموقع في Site URL وأضفه في Redirect URLs (أحاول ضبطه لك بالأداة إن أمكن، انظر PROGRESS-ar.md).
 2. **GitHub**: في الطرفية داخل مجلد المشروع:
    ```
    gh auth login
