@@ -1,16 +1,17 @@
-// Service worker: offline app shell + street data + libraries, opportunistic map tiles.
+// Service worker: offline app shell + street data + libraries/fonts, opportunistic map tiles.
 // Supabase requests are never intercepted. Bump VERSION on every deploy.
-const VERSION = "v0.2.0";
+const VERSION = "v0.3.0";
 const DATA_VERSION = "2026-10-13";
-const SHELL = `shell-${VERSION}`, DATA = `data-${DATA_VERSION}`, LIB = "lib-v1", TILES = "tiles-v1";
-const PRECACHE = ["./", "index.html", "css/app.css", "manifest.webmanifest", "icons/icon.svg", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
-  "js/app.js", "js/auth.js", "js/config.js", "js/db.js", "js/geo.js", "js/map.js", "js/sync.js", "data/hoods.json"];
+const SHELL = `shell-${VERSION}`, DATA = `data-${DATA_VERSION}`, LIB = "lib-v2", TILES = "tiles-v1";
+const PRECACHE = ["./", "index.html", "css/tokens.css", "css/app.css", "manifest.webmanifest", "icons/icon.svg", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
+  "js/app.js", "js/auth.js", "js/config.js", "js/ctx.js", "js/db.js", "js/demo.js", "js/domain.js", "js/excel.js", "js/forms.js", "js/geo.js", "js/icons.js", "js/map.js", "js/screens.js", "js/store.js", "js/sync.js", "js/theme.js", "js/ui.js",
+  "data/hoods.json", "data/streets/index.json"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(PRECACHE.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", (e) => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => (k.startsWith("shell-") && k !== SHELL) || (k.startsWith("data-") && k !== DATA)).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => (k.startsWith("shell-") && k !== SHELL) || (k.startsWith("data-") && k !== DATA) || (k.startsWith("lib-") && k !== LIB)).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener("fetch", (e) => {
@@ -22,7 +23,7 @@ self.addEventListener("fetch", (e) => {
     if (url.pathname.includes("/data/streets/") || url.pathname.includes("/data/boundaries/")) { e.respondWith(cacheFirst(DATA, e.request)); return; }
     e.respondWith(shellFirst(e.request)); return;
   }
-  if (/cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|unpkg\.com/.test(url.hostname)) { e.respondWith(cacheFirst(LIB, e.request)); return; }
+  if (/cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|unpkg\.com|fonts\.googleapis\.com|fonts\.gstatic\.com/.test(url.hostname)) { e.respondWith(cacheFirst(LIB, e.request)); return; }
   if (/tile\.openstreetmap\.org/.test(url.hostname)) { e.respondWith(tiles(e.request)); return; }
 });
 

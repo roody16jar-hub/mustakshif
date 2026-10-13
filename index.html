@@ -1,50 +1,54 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="neon">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>مستكشف</title>
-<meta name="description" content="دفتر الميدان: شوارع مستكشفة، أهداف، وعقارات. يعمل بلا إنترنت ويزامن تلقائياً.">
-<meta name="theme-color" content="#0f172a">
+<meta name="description" content="دفتر الميدان: شوارع مستكشفة، أهداف، عقارات، لوحات، اتصالات وتسليم للمكتب. يعمل بلا إنترنت ويزامن تلقائياً.">
+<meta name="theme-color" content="#0a0f1e">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="مستكشف">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="">
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/app.css">
 <script>
-  // theme before first paint: "dark" (default), "light", or "auto" (follows the phone)
+  // theme before first paint (auto = daylight while the sun is up in Riyadh, neon at night)
   (function () { try {
-    var t = localStorage.getItem("mustakshif.theme") || "dark"; var r = document.documentElement; r.dataset.theme = t;
-    var mq = window.matchMedia("(prefers-color-scheme: light)"); var apply = function () { r.classList.toggle("light", t === "auto" && mq.matches); };
-    apply(); mq.addEventListener && mq.addEventListener("change", apply);
+    var c = localStorage.getItem("mustakshif.theme") || "auto"; var id = c;
+    if (c === "auto") { var h = new Date().getHours(); id = (h >= 6 && h < 18) ? "day" : "neon"; }
+    document.documentElement.dataset.theme = id;
   } catch (e) {} })();
 </script>
 </head>
 <body>
 
 <!-- connection setup (only when config.js is empty) -->
-<section id="screen-setup" class="screen hidden">
+<section id="screen-setup" class="screen hidden" aria-label="إعداد الاتصال">
   <div class="card">
     <h1>مستكشف</h1>
-    <p class="muted">أول مرة فقط: الصق رابط مشروع Supabase ومفتاح anon العام. تُحفظ في هذا الجهاز.</p>
+    <p class="muted">أول مرة فقط: الصق رابط مشروع Supabase والمفتاح العام (anon). تُحفظ في هذا الجهاز.</p>
     <label>رابط المشروع <input id="setup-url" dir="ltr" placeholder="https://xxxx.supabase.co" autocomplete="off"></label>
-    <label>المفتاح العام (anon) <textarea id="setup-key" dir="ltr" rows="3" autocomplete="off"></textarea></label>
-    <button id="setup-save" class="primary">حفظ ومتابعة</button>
-    <p id="setup-msg" class="msg"></p>
+    <label>المفتاح العام <textarea id="setup-key" dir="ltr" rows="3" autocomplete="off"></textarea></label>
+    <button id="setup-save" class="btn primary big">حفظ ومتابعة</button>
+    <p id="setup-msg" class="msg" role="status"></p>
   </div>
 </section>
 
 <!-- login / first account / forgot / reset -->
-<section id="screen-auth" class="screen hidden">
+<section id="screen-auth" class="screen hidden" aria-label="تسجيل الدخول">
   <div class="card">
     <h1>مستكشف</h1>
     <form id="form-login" class="auth-form">
-      <label>البريد <input name="email" type="email" dir="ltr" autocomplete="username" required></label>
+      <label>البريد <input name="email" type="email" dir="ltr" autocomplete="username" inputmode="email" required></label>
       <label>كلمة المرور <input name="password" type="password" autocomplete="current-password" required></label>
-      <button class="primary" type="submit">دخول</button>
+      <button class="btn primary big" type="submit">دخول</button>
       <div class="links"><a href="#" data-show="forgot">نسيت كلمة المرور</a><a href="#" data-show="signup">إنشاء الحساب (أول مرة)</a></div>
     </form>
     <form id="form-signup" class="auth-form hidden">
@@ -52,142 +56,104 @@
       <label>البريد <input name="email" type="email" dir="ltr" readonly></label>
       <label>كلمة المرور <input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
       <label>تأكيد كلمة المرور <input name="password2" type="password" autocomplete="new-password" minlength="8" required></label>
-      <button class="primary" type="submit">إنشاء الحساب</button>
+      <button class="btn primary big" type="submit">إنشاء الحساب</button>
       <div class="links"><a href="#" data-show="login">رجوع للدخول</a></div>
     </form>
     <form id="form-forgot" class="auth-form hidden">
       <p class="muted">نرسل لبريدك رابطاً لتعيين كلمة مرور جديدة.</p>
-      <label>البريد <input name="email" type="email" dir="ltr" required></label>
-      <button class="primary" type="submit">إرسال الرابط</button>
+      <label>البريد <input name="email" type="email" dir="ltr" inputmode="email" required></label>
+      <button class="btn primary big" type="submit">إرسال الرابط</button>
       <div class="links"><a href="#" data-show="login">رجوع للدخول</a></div>
     </form>
     <form id="form-reset" class="auth-form hidden">
       <p class="muted">اختر كلمة المرور الجديدة.</p>
       <label>كلمة المرور الجديدة <input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
       <label>تأكيدها <input name="password2" type="password" autocomplete="new-password" minlength="8" required></label>
-      <button class="primary" type="submit">حفظ</button>
+      <button class="btn primary big" type="submit">حفظ</button>
     </form>
-    <p id="auth-msg" class="msg"></p>
+    <p id="auth-msg" class="msg" role="status" aria-live="polite"></p>
   </div>
 </section>
 
 <!-- the app -->
 <div id="app" class="hidden">
-  <header>
-    <select id="hood"></select>
-    <div id="coverage" class="pill" title="نسبة الشوارع المستكشفة">—</div>
-    <div id="sync" class="pill sync" title="حالة المزامنة">…</div>
+  <header id="hdr">
+    <h1 id="hdr-title">اليوم</h1>
+    <div id="hdr-action"></div>
+    <div id="sync" class="pill sync" data-s="idle" title="حالة المزامنة">…</div>
   </header>
 
-  <main>
-    <section id="panel-map" class="panel active">
-      <div id="map"></div>
-      <div class="map-controls">
-        <button id="btn-track" class="fab primary" title="بدء / إيقاف التتبع">▶ تتبّع</button>
-        <button id="btn-follow" class="fab" title="حدّد موقعي الآن">◎ موقعي</button>
-        <button id="btn-add-here" class="fab" title="إضافة عقار في موقعي">＋</button>
-      </div>
-      <div id="fix" class="fix muted"><span class="hidden"></span></div>
+  <main id="main">
+    <!-- اليوم -->
+    <section id="panel-today" class="panel active" data-title="اليوم">
+      <div class="stack" id="today"></div>
     </section>
 
-    <section id="panel-targets" class="panel">
-      <div class="toolbar">
-        <select id="t-status"><option value="">كل الحالات</option><option value="new">جديد</option><option value="visited">تمت الزيارة</option><option value="ignored">تجاهل</option></select>
-        <select id="t-kind"><option value="">كل الأنواع</option></select>
-        <input id="t-q" placeholder="بحث…">
-        <label class="btn">استيراد targets.json<input id="t-import" type="file" accept=".json,application/json" hidden></label>
+    <!-- الخريطة -->
+    <section id="panel-map" class="panel" data-title="الخريطة">
+      <div id="map" role="application" aria-label="خريطة الحي"></div>
+      <div class="map-top">
+        <select id="hood" class="hood-pick" aria-label="الحي"></select>
+        <div id="coverage" class="pill" title="الشوارع المستكشفة">—</div>
       </div>
-      <div id="t-count" class="muted small"></div>
+      <div id="trackbar" class="trackbar hidden" role="status" aria-live="polite"></div>
+      <div id="desktop-note" class="note-float hidden">لا يوجد GPS في هذا الجهاز: الدقة منخفضة والتتبّع هنا للتجربة فقط.</div>
+      <div class="map-side">
+        <button id="btn-follow" class="fab" aria-label="حدّد موقعي"></button>
+        <button id="btn-layers" class="fab" aria-label="خريطة OpenStreetMap"></button>
+        <button id="btn-demo" class="fab" aria-label="قيادة تجريبية"></button>
+      </div>
+      <div class="map-bottom">
+        <div id="field-actions" class="field-actions hidden">
+          <button id="btn-prop-here" class="btn field">سجّلت عقار هنا</button>
+          <button id="btn-sign-here" class="btn field secondary">صوّر لوحة</button>
+        </div>
+        <button id="btn-track" class="btn primary field"></button>
+      </div>
+    </section>
+
+    <!-- العقارات -->
+    <section id="panel-props" class="panel" data-title="العقارات">
+      <div class="toolbar"><input id="p-q" class="search" placeholder="بحث في العقارات" aria-label="بحث"><select id="p-status" aria-label="الحالة"><option value="">كل الحالات</option></select></div>
+      <ul id="p-list" class="list"></ul>
+      <div class="sticky-action"><button id="p-add" class="btn primary big">عقار جديد</button></div>
+    </section>
+
+    <!-- الأهداف -->
+    <section id="panel-targets" class="panel" data-title="الأهداف">
+      <div class="toolbar"><input id="t-q" class="search" placeholder="بحث في الأهداف" aria-label="بحث"><select id="t-status" aria-label="الحالة"><option value="">كل الحالات</option><option value="new">جديد</option><option value="visited">تمت الزيارة</option><option value="ignored">تجاهل</option></select></div>
+      <div class="chips" id="t-chips"><button class="chip on" data-f="my">من نوعي</button><button class="chip on" data-f="verified">موثّق</button></div>
+      <div id="t-count" class="muted small pad"></div>
       <ul id="t-list" class="list"></ul>
     </section>
 
-    <section id="panel-props" class="panel">
-      <div class="toolbar">
-        <input id="p-q" placeholder="بحث…">
-        <button id="p-add" class="btn primary">＋ عقار جديد</button>
-      </div>
-      <ul id="p-list" class="list"></ul>
+    <!-- المزيد: قائمة الأقسام -->
+    <section id="panel-more" class="panel" data-title="المزيد">
+      <ul id="more-menu" class="menu"></ul>
     </section>
 
-    <section id="panel-settings" class="panel">
-      <div class="card flat">
-        <h2>الحساب</h2>
-        <p id="s-email" dir="ltr" class="muted"></p>
-        <form id="form-change" class="row">
-          <input name="password" type="password" placeholder="كلمة مرور جديدة" minlength="8" autocomplete="new-password" required>
-          <button class="btn" type="submit">تغيير كلمة المرور</button>
-        </form>
-        <button id="s-logout" class="btn danger">تسجيل الخروج</button>
-      </div>
-      <div class="card flat">
-        <h2>المظهر</h2>
-        <select id="s-theme"><option value="dark">داكن</option><option value="light">فاتح</option><option value="auto">تلقائي مثل الجوال</option></select>
-      </div>
-      <div class="card flat">
-        <h2>المزامنة</h2>
-        <p id="s-sync" class="muted"></p>
-        <button id="s-sync-now" class="btn">مزامنة الآن</button>
-      </div>
-      <div class="card flat">
-        <h2>النسخة الاحتياطية</h2>
-        <label class="check"><input id="s-with-photos" type="checkbox" checked> تضمين الصور (ملف أكبر)</label>
-        <div class="row">
-          <button id="s-export" class="btn">تصدير نسخة كاملة</button>
-          <label class="btn">استيراد نسخة<input id="s-import" type="file" accept=".json,application/json" hidden></label>
-        </div>
-        <p id="s-backup-msg" class="msg"></p>
-      </div>
-      <div class="card flat">
-        <h2>الشوارع</h2>
-        <p id="s-coverage" class="muted"></p>
-        <button id="s-reset-hood" class="btn danger">مسح استكشاف هذا الحي</button>
-      </div>
-      <div class="card flat">
-        <h2>عن التطبيق</h2>
-        <p class="muted small">مستكشف <span id="s-version"></span> · بيانات الشوارع من OpenStreetMap (ODbL). <a href="#" id="s-reconnect">تغيير إعدادات الاتصال</a></p>
-      </div>
+    <!-- شاشات فرعية تحت "المزيد" (تُملأ ديناميكياً) -->
+    <section id="panel-sub" class="panel" data-title="">
+      <div id="sub" class="stack"></div>
     </section>
   </main>
 
-  <nav>
-    <button data-panel="map" class="active">🗺️<span>الخريطة</span></button>
-    <button data-panel="targets">🎯<span>الأهداف</span></button>
-    <button data-panel="props">🏠<span>العقارات</span></button>
-    <button data-panel="settings">⚙️<span>الإعدادات</span></button>
+  <nav id="tabs" aria-label="التنقل">
+    <button data-panel="today" class="active"><span class="i"></span><span>اليوم</span></button>
+    <button data-panel="map"><span class="i"></span><span>الخريطة</span></button>
+    <button data-panel="props"><span class="i"></span><span>العقارات</span></button>
+    <button data-panel="targets"><span class="i"></span><span>الأهداف</span></button>
+    <button data-panel="more"><span class="i"></span><span>المزيد</span></button>
   </nav>
 </div>
 
-<!-- item editor (target or property) -->
-<dialog id="dlg">
-  <form id="dlg-form" method="dialog">
-    <header><h2 id="dlg-title"></h2><button type="button" id="dlg-close" class="icon">✕</button></header>
-    <div id="dlg-meta" class="muted small"></div>
-    <div class="grid">
-      <label>العنوان <input name="title"></label>
-      <label>الحالة <select name="status"><option value="new">جديد</option><option value="visited">تمت الزيارة</option><option value="ignored">تجاهل</option></select></label>
-      <label>الأولوية <select name="priority"><option value="">—</option><option value="high">عالية</option><option value="mid">متوسطة</option><option value="low">منخفضة</option></select></label>
-      <label>النوع <input name="kind_label" placeholder="فيلا، عمارة، أرض…"></label>
-      <label>المرحلة <input name="phase" placeholder="هيكل، تشطيب، مكتمل…"></label>
-      <label>السعر المطلوب <input name="price" inputmode="numeric"></label>
-      <label>اسم المالك <input name="owner_name"></label>
-      <label>جوال المالك <input name="owner_phone" dir="ltr" inputmode="tel"></label>
-    </div>
-    <label>ملاحظات <textarea name="note" rows="3"></textarea></label>
-    <div class="photos">
-      <div id="dlg-photos" class="thumbs"></div>
-      <label class="btn">📷 إضافة صورة<input id="dlg-photo" type="file" accept="image/*" capture="environment" hidden></label>
-    </div>
-    <footer>
-      <a id="dlg-maps" class="btn" target="_blank" rel="noopener">خرائط Google</a>
-      <a id="dlg-wa" class="btn" target="_blank" rel="noopener">واتساب</a>
-      <button type="button" id="dlg-locate" class="btn">تحديد الموقع الحالي</button>
-      <button type="button" id="dlg-delete" class="btn danger">حذف</button>
-    </footer>
-    <p class="muted small">يُحفظ تلقائياً مع كل تغيير.</p>
-  </form>
+<!-- generic bottom sheet: forms and cards are rendered into it -->
+<dialog id="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-head"><h2 id="sheet-title"></h2><button type="button" id="sheet-close" class="btn icon" aria-label="إغلاق"></button></div>
+  <div id="sheet-body" class="sheet-body"></div>
 </dialog>
 
-<div id="toast" class="toast hidden"></div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin=""></script>
 <script type="module" src="js/app.js"></script>

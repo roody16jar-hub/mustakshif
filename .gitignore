@@ -5,3 +5,4 @@ tools/fetch.log
 tests/e2e/shots/
 supabase/.temp/
 supabase/.branches/
+supabase/load_targets.generated.sql

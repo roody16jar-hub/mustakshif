@@ -47,3 +47,32 @@ test("mergeRows keeps newer incoming rows only", () => {
   const out = mergeRows(local, inc);
   assert.deepEqual(out.map(r => r.id).sort(), ["x", "z"]);
 });
+
+// ---- snapping, smoothing, sun times (added for the field-accuracy requirements) ----
+import { Smoother, sunTimes } from "../js/geo.js";
+test("snap returns only the nearest street, never the parallel one 30 m away", () => {
+  const parallel = { type: "FeatureCollection", features: [
+    { type: "Feature", properties: { id: 10 }, geometry: { type: "LineString", coordinates: [[46.6500, 24.8500], [46.6520, 24.8500]] } },
+    { type: "Feature", properties: { id: 11 }, geometry: { type: "LineString", coordinates: [[46.6500, 24.85027], [46.6520, 24.85027]] } }, // ~30 m north
+  ] };
+  const idx = new StreetIndex(parallel.features);
+  const s = idx.snap([46.6510, 24.85005], 20);           // 5.5 m from street 10, 24 m from street 11
+  assert.equal(s.id, "10");
+  assert.equal(idx.snap([46.6510, 24.8503], 20).id, "11");
+  assert.equal(idx.snap([46.6510, 24.8508], 20), null);  // 60 m from both
+});
+test("smoother drops bad accuracy, rejects impossible jumps, averages the rest", () => {
+  const sm = new Smoother({ window: 3, maxAcc: 25, maxSpeed: 60 });
+  assert.equal(sm.push({ lat: 24.85, lon: 46.65, acc: 40, t: 1000 }), null);          // too inaccurate
+  const a = sm.push({ lat: 24.85, lon: 46.65, acc: 8, t: 2000 }); assert.ok(a);
+  assert.equal(sm.push({ lat: 24.86, lon: 46.65, acc: 8, t: 3000 }), null);            // 1.1 km in 1 s: impossible
+  const b = sm.push({ lat: 24.85002, lon: 46.65, acc: 6, t: 4000 });
+  assert.ok(b.lat > 24.85 && b.lat < 24.85002 && b.acc === 6);
+  assert.equal(sm.rejected, 2);
+});
+test("sun times for Riyadh on 2026-10-13 are around 05:50 sunrise and 17:40 sunset local (UTC+3)", () => {
+  const { sunrise, sunset } = sunTimes(new Date("2026-10-13T12:00:00+03:00"), 24.71, 46.68);
+  const h = (d) => (d.getUTCHours() + 3 + d.getUTCMinutes() / 60) % 24;
+  assert.ok(Math.abs(h(sunrise) - 5.85) < 0.35, "sunrise " + h(sunrise));
+  assert.ok(Math.abs(h(sunset) - 17.65) < 0.35, "sunset " + h(sunset));
+});

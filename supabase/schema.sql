@@ -28,7 +28,7 @@ create trigger only_owner_signup before insert on auth.users
 create table if not exists public.items (
   id uuid primary key,
   user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
-  kind text not null check (kind in ('target','property','note','setting')),
+  kind text not null,
   data jsonb not null default '{}'::jsonb,
   deleted boolean not null default false,
   updated_at timestamptz not null default now(),
@@ -36,6 +36,8 @@ create table if not exists public.items (
   synced_at timestamptz not null default clock_timestamp()
 );
 alter table public.items add column if not exists synced_at timestamptz not null default clock_timestamp();
+alter table public.items drop constraint if exists items_kind_check;   -- kinds are open-ended now (target, property, sign, contact, request, contractor, price_avg, handover, session, scan, setting, note)
+alter table public.items add constraint items_kind_check check (kind ~ '^[a-z_]{1,32}$');
 create index if not exists items_user_synced on public.items (user_id, synced_at);
 create index if not exists items_user_kind on public.items (user_id, kind) where not deleted;
 
