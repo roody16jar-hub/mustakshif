@@ -1,0 +1,6 @@
+1/4 الحدود من Nominatim: الصحافة, الرياض
+2/4 الشوارع من Overpass (قد يستغرق دقائق)
+sahafah fetching [46.6224, 24.7736, 46.6529, 24.8191]
+sahafah ways fetched 1527 kept 723 size KB 188
+3/4 فهرس الأحياء
+4/4 تم: الصحافة (sahafah) — 723 شارع، 177 كم. الآن: git add -A && git commit -m "حي الصحافة" && git push

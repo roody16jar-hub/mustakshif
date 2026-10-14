@@ -102,11 +102,13 @@
         <button id="btn-follow" class="fab" aria-label="حدّد موقعي"></button>
         <button id="btn-layers" class="fab" aria-label="خريطة OpenStreetMap"></button>
         <button id="btn-demo" class="fab" aria-label="قيادة تجريبية"></button>
+        <button id="btn-legend" class="fab" aria-label="مفتاح الرموز"></button>
       </div>
       <div class="map-bottom">
         <div id="field-actions" class="field-actions hidden">
           <button id="btn-prop-here" class="btn field">سجّلت عقار هنا</button>
           <button id="btn-sign-here" class="btn field secondary">صوّر لوحة</button>
+          <button id="btn-pause" class="btn big secondary">إيقاف مؤقت</button>
         </div>
         <button id="btn-track" class="btn primary field"></button>
       </div>
@@ -115,6 +117,7 @@
     <!-- العقارات -->
     <section id="panel-props" class="panel" data-title="العقارات">
       <div class="toolbar"><input id="p-q" class="search" placeholder="بحث في العقارات" aria-label="بحث"><select id="p-status" aria-label="الحالة"><option value="">كل الحالات</option></select></div>
+      <div class="chips" id="p-hoods"></div>
       <ul id="p-list" class="list"></ul>
       <div class="sticky-action"><button id="p-add" class="btn primary big">عقار جديد</button></div>
     </section>

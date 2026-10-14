@@ -120,7 +120,7 @@ pre.report { white-space: pre-wrap; font-family: inherit; background: var(--surf
 .pin-target.my { box-shadow: 0 0 0 3px color-mix(in srgb, var(--map-target) 45%, transparent), var(--shadow); }
 .me { color: var(--map-me); display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 6px var(--map-me)); }
 .me .ic { width: 28px; height: 28px; transform: rotate(var(--heading, 0deg)); fill: var(--map-me); }
-.district-label { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--map-label-bg); color: var(--map-label); border: 1.5px solid var(--map-border); border-radius: var(--radius-input); font-size: var(--fs-label); line-height: 1.2; padding: 4px; box-shadow: var(--shadow); }
+.district-label { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--map-label-bg); color: var(--map-label); border: 1.5px solid var(--map-border); border-radius: var(--radius-input); font-size: var(--fs-label); line-height: 1.15; padding: 4px 6px; box-shadow: var(--shadow); }
 .district-label span { font-weight: 700; font-size: var(--fs-body); } .district-label.cur { border-width: 2.5px; }
 .leaflet-tooltip { font-family: var(--font); font-size: var(--fs-label); background: var(--surface); color: var(--text); border-color: var(--line); }
 
@@ -135,3 +135,14 @@ dialog#sheet::backdrop { background: var(--overlay); }
 
 .toast { position: fixed; bottom: calc(var(--tabbar-h) + var(--s2) + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: var(--toast); color: var(--toast-ink); padding: 12px 18px; border-radius: var(--radius-pill); z-index: 3000; font-size: var(--fs-body); font-weight: 500; max-width: 92vw; text-align: center; box-shadow: var(--shadow); }
 @media (min-width: 720px) { .stack, .list, .menu { max-width: 720px; margin: 0 auto; } .toolbar { max-width: 720px; margin: 0 auto; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+.street-canvas { pointer-events: none; }
+.pin-contractor { color: var(--accent); } .pin-target.hi { border-width: 3px; }
+.district-label small { font-size: 11px; color: var(--muted); white-space: nowrap; } .district-label.done { border-color: var(--ok); } .district-label.done span { color: var(--ok); }
+.thumbs video { width: 120px; height: 88px; border-radius: var(--radius-input); border: 1px solid var(--line); background: #000; display: block; }
+.notice.ok { border-color: var(--ok); } .notice.ok .ic { color: var(--ok); }
+.trackbar.alert { background: var(--danger); color: var(--on-danger); font-size: var(--fs-h3); justify-content: center; }
+.trackbar.paused { background: var(--surface-2); color: var(--text); border: 1.5px solid var(--line); }
+.legend { display: grid; grid-template-columns: 32px 1fr; gap: 8px 12px; align-items: center; } .legend .sw { height: 6px; border-radius: 3px; }
+.obj.reached span::before { content: "✓ "; color: var(--ok); }
+.completed { border-color: var(--ok); } .completed h2 { color: var(--ok); }

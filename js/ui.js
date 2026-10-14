@@ -4,6 +4,7 @@ import { icon } from "./icons.js";
 import { db, uuid } from "./db.js";
 import { photoBlob } from "./sync.js";
 import { CONFIG } from "./config.js";
+import { normalizeDigits } from "./domain.js";
 
 export const $ = (s, root = document) => root.querySelector(s);
 export const $$ = (s, root = document) => [...root.querySelectorAll(s)];
@@ -23,7 +24,8 @@ export const loading = (t = "جارٍ التحميل…") => `<div class="loadin
 // ---------- bottom sheet ----------
 let sheetClose = null;
 export function openSheet(title, html, { onClose = null } = {}) {
-  const d = $("#sheet"); $("#sheet-title").textContent = title; $("#sheet-body").innerHTML = html;
+  const d = $("#sheet"); $("#sheet-title").textContent = title;
+  const old = $("#sheet-body"); const fresh = old.cloneNode(false); old.replaceWith(fresh); fresh.innerHTML = html;   // a fresh body drops the previous sheet's autosave listeners
   sheetClose = onClose;
   if (!d.open) d.showModal();
   $("#sheet-body").scrollTop = 0;
@@ -57,6 +59,7 @@ export function bindAutosave(root, item, save, { validate = null, onChange = nul
     if (!root.isConnected || !$("input[name],select[name],textarea[name]", root)) return;   // sheet already closed or replaced
     let changed = false;
     for (const el of $$("input[name],select[name],textarea[name]", root)) {
+      if (el.tagName === "INPUT" && (el.type === "tel" || el.inputMode === "decimal" || el.inputMode === "tel")) { const n = normalizeDigits(el.value); if (n !== el.value) el.value = n; }
       const v = el.value; if ((item.data[el.name] ?? "") !== v) { item.data[el.name] = v; changed = true; }
       if (validate) { const err = validate(el.name, v); const h = el.parentElement.querySelector(".hint.err"); if (err) { if (!h) { const d = document.createElement("div"); d.className = "hint err"; d.textContent = err; el.parentElement.appendChild(d); } else h.textContent = err; } else if (h) h.remove(); }
     }
@@ -79,23 +82,28 @@ export function compress(file) {
     img.onerror = rej; img.src = url;
   });
 }
-export async function addPhotoTo(item, file, uid, save) {
-  const blob = await compress(file); const pid = uuid();
-  await db.put("photos", { id: pid, item: item.id, path: `${uid}/${item.id}/${pid}.jpg`, blob, dirty: 1, deleted: false });
+export async function addMediaTo(item, file, uid, save) {
+  const isVideo = file.type.startsWith("video/");
+  const blob = isVideo ? file : await compress(file); const pid = uuid();
+  const ext = isVideo ? (file.type.includes("quicktime") ? "mov" : "mp4") : "jpg";
+  await db.put("photos", { id: pid, item: item.id, path: `${uid}/${item.id}/${pid}.${ext}`, type: isVideo ? (file.type || "video/mp4") : "image/jpeg", blob, dirty: 1, deleted: false });
   item.data.photos = [...(item.data.photos || []), pid]; await save(item); return pid;
 }
+export const addPhotoTo = addMediaTo;
 let photoRender = 0;
 export async function renderThumbs(box, item, save) {
   const token = ++photoRender; box.innerHTML = "";
   for (const pid of item.data.photos || []) {
     if (token !== photoRender) return;
     const wrap = document.createElement("div"); wrap.className = "ph";
-    const img = document.createElement("img"); img.alt = "صورة";
+    const p = await db.get("photos", pid); const isVideo = p && (p.type || "").startsWith("video/");
+    const img = document.createElement(isVideo ? "video" : "img"); if (isVideo) { img.controls = true; img.playsInline = true; img.muted = true; } else img.alt = "صورة";
     const blob = await photoBlob(pid);
-    if (blob) { img.src = URL.createObjectURL(blob); img.onclick = () => window.open(img.src, "_blank"); } else img.alt = "لم تُنزَّل بعد";
+    if (blob) { img.src = URL.createObjectURL(blob); if (!isVideo) img.onclick = () => window.open(img.src, "_blank"); } else if (!isVideo) img.alt = "لم تُنزَّل بعد";
     const del = document.createElement("button"); del.type = "button"; del.textContent = "✕"; del.setAttribute("aria-label", "حذف الصورة");
     del.onclick = async () => { if (!confirmAr("حذف الصورة؟")) return; const p = await db.get("photos", pid); if (p) await db.put("photos", { ...p, blob: null, deleted: true, dirty: 1 }); item.data.photos = item.data.photos.filter(x => x !== pid); await save(item); renderThumbs(box, item, save); };
     wrap.append(img, del); box.appendChild(wrap);
   }
 }
 export function photoButton(label = "إضافة صورة") { return `<label class="btn secondary big">${icon("camera")} ${esc(label)}<input type="file" accept="image/*" capture="environment" hidden data-photo></label>`; }
+export function videoButton(label = "فيديو قصير") { return `<label class="btn secondary big">${icon("play")} ${esc(label)}<input type="file" accept="video/*" capture="environment" hidden data-video></label>`; }

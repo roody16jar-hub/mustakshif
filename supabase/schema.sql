@@ -115,8 +115,8 @@ grant all on table public.items, public.explored to service_role;
 -- 5. photos bucket (private). Files live under <user_id>/<item_id>/<photo_id>.jpg
 -- ---------------------------------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('photos', 'photos', false, 5242880, array['image/jpeg','image/png','image/webp'])
-on conflict (id) do update set public = false, file_size_limit = 5242880, allowed_mime_types = array['image/jpeg','image/png','image/webp'];
+values ('photos', 'photos', false, 26214400, array['image/jpeg','image/png','image/webp','video/mp4','video/quicktime','video/webm'])
+on conflict (id) do update set public = false, file_size_limit = 26214400, allowed_mime_types = array['image/jpeg','image/png','image/webp','video/mp4','video/quicktime','video/webm'];
 
 drop policy if exists photos_owner_select on storage.objects;
 drop policy if exists photos_owner_insert on storage.objects;

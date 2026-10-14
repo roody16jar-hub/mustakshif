@@ -62,7 +62,7 @@
   color-scheme: dark;
   --bg: #07331f; --surface: #0c4229; --surface-2: #125236; --line: #2a7a55;
   --text: #f4fff8; --muted: #c6e8d4; --on-primary: #07331f;
-  --primary: #ffffff; --primary-strong: #e6f4ea; --accent: #d4af37; --warn: #ffd166; --danger: #ff8a8a; --ok: #9ff5c3;
+  --primary: #ffffff; --primary-strong: #e6f4ea; --accent: #ffd86b; --warn: #ffd166; --danger: #ff8a8a; --ok: #9ff5c3;
   --input: #062a19; --toast: rgba(4,30,18,.9); --toast-ink: #fff; --overlay: rgba(4,30,18,.65); --on-danger: #1a0608;
   --pill-new: #ffd166; --pill-visited: #d4af37; --pill-ignored: #9bc7ad; --pill-done: #9ff5c3; --pill-warn: #ff8a8a;
   --map-bg: #052616; --map-border: #d4af37; --map-border-glow: rgba(212,175,55,.3); --map-other: rgba(212,175,55,.4);

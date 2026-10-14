@@ -14,13 +14,13 @@ const now = new Date().toISOString();
 const seed = [
   { id: "a1", kind: "target", data: { ref: "narjis-006", title: "narjis-006", hood: "narjis", lat: 24.873699, lon: 46.647076, area: 1300, kind_label: "مبنى مفرد على قطعة واحدة", kind_key: "small_dev", phase: "هيكل وسقف", score: 100, why: "قطعة واحدة وسط فلل", verified: true, my_type: true, status: "new", photos: [], scan_date: "2026-10-06" } },
   { id: "a2", kind: "target", data: { ref: "narjis-011", title: "narjis-011", hood: "narjis", lat: 24.8750, lon: 46.6500, area: 600, kind_label: "فيلا", kind_key: "single", phase: "تشطيب", score: 80, verified: true, my_type: true, status: "visited", visited_at: now, photos: [] } },
-  { id: "b1", kind: "property", data: { title: "فيلا زاوية شارع 12", hood: "narjis", type: "villa", status: "listed", area: "400", price: "2500000", owner_name: "أبو خالد", owner_phone: "0551234567", phase: "تشطيب", note: "المالك جاد", next_followup: "2026-10-14", lat: 24.8745, lon: 46.6480, photos: [] } },
-  { id: "b2", kind: "property", data: { title: "عمارة سكنية", hood: "narjis", type: "building", status: "contacted", area: "900", price: "6500000", next_followup: "2026-10-01", lat: 24.8720, lon: 46.6450, photos: [] } },
+  { id: "b1", kind: "property", data: { code: "R-1", title: "فيلا زاوية شارع 12", hood: "narjis", type: "villa", age: "new", rooms: "5", status: "contract", area: "400", price: "2500000", negotiable: "yes", contact_role: "owner", owner_name: "أبو خالد", owner_phone: "0551234567", seriousness: "high", deed: "ready", phase: "تشطيب", note: "المالك جاد", next_followup: "2026-10-14", lat: 24.8745, lon: 46.6480, photos: [] } },
+  { id: "b2", kind: "property", data: { code: "R-2", title: "عمارة سكنية", hood: "narjis", type: "building", age: "building", status: "contacted", area: "900", price: "6500000", next_followup: "2026-10-01", lat: 24.8720, lon: 46.6450, photos: [] } },
   { id: "c1", kind: "sign", data: { hood: "narjis", phone: "0509998877", text: "للبيع", status: "new", lat: 24.8730, lon: 46.6460, photos: [] } },
   { id: "d1", kind: "contact", data: { ref_kind: "property", ref_id: "b1", ref_title: "فيلا زاوية شارع 12", hood: "narjis", channel: "call", outcome: "interested", at: now, note: "يريد عرضاً خلال أسبوع", next_followup: "2026-10-14" } },
   { id: "e1", kind: "request", data: { buyer_name: "أبو فهد", buyer_phone: "0500000001", hood: "narjis", type: "villa", budget_min: "2000000", budget_max: "2700000", area_min: "350", status: "open" } },
-  { id: "f1", kind: "price_avg", data: { hood: "narjis", type: "villa", price_per_m2: "6000" } },
-  { id: "g1", kind: "contractor", data: { name: "مؤسسة البناء الحديث", phone: "0533334444", specialty: "فلل", hoods: "النرجس، الياسمين" } },
+  { id: "f1", kind: "price_avg", data: { hood: "narjis", type: "villa", price_per_m2: "6000", date: "2026-10-01" } },
+  { id: "g1", kind: "contractor", data: { name: "مؤسسة البناء الحديث", kind: "contractor", phone: "0533334444", specialty: "فلل", hoods: "النرجس، الياسمين", lat: 24.8760, lon: 46.6490 } },
   { id: "h1", kind: "setting", data: { key: "broker", value: { name: "رائد", license: "1234567", office: "مكتب النخبة العقاري", phone: "0500000000" } } },
   { id: "i1", kind: "scan", data: { hood: "narjis", scan_date: "2026-10-06", total: 234, verified: 122, of_my_type: 182 } },
   { id: "j1", kind: "session", data: { hood: "narjis", duration_s: 1500, km: 8.4, streets_new: 37, targets_near: 3, properties_added: 1, signs_added: 1 } },
@@ -79,14 +79,14 @@ async function checks(page, name, theme) {
     await tab("map"); await page.waitForTimeout(800); await shot("03-map");
     await page.click("#btn-track"); await page.waitForTimeout(1200);
     for (const [la, lo] of [[24.8738, 46.6472], [24.87395, 46.64735], [24.8741, 46.6475]]) { await ctx.setGeolocation({ latitude: la, longitude: lo, accuracy: 6 }); await page.waitForTimeout(800); }
-    await shot("04-map-tracking"); await page.click("#btn-track"); await page.waitForSelector("#sheet[open]"); await shot("05-session-summary"); await page.click("#ss-close");
+    await shot("04-map-tracking"); await page.click("#btn-pause"); await page.waitForTimeout(400); await shot("04b-map-paused"); await page.click("#btn-pause"); await page.waitForTimeout(300); await page.click("#btn-track"); await page.waitForSelector("#sheet[open]"); await shot("05-session-summary"); await page.click("#ss-close");
     await page.evaluate(() => { const m = document.querySelector("#map"); }); await tab("props"); await shot("06-properties");
     await page.click("#p-list li[data-id] >> nth=0"); await page.waitForSelector("#sheet[open]"); await page.waitForTimeout(300); await shot("07-property-card"); await page.click("#sheet-close");
     await page.click("#p-add"); await page.waitForSelector("#sheet[open]"); await page.waitForTimeout(300); await shot("08-property-form");
     page.once("dialog", d => d.accept()); await page.click('#sheet [data-act="delete"]'); await page.waitForTimeout(300);
     await tab("targets"); await shot("09-targets"); await page.click("#t-list li[data-id] >> nth=0"); await page.waitForSelector("#sheet[open]"); await page.waitForTimeout(300); await shot("10-target-card"); await page.click("#sheet-close");
     await tab("more"); await shot("11-more");
-    for (const [id, n] of [["scout", "12-scout"], ["signs", "13-signs"], ["contacts", "14-contacts"], ["requests", "15-requests"], ["handover", "16-handover"], ["stats", "17-stats"], ["contractors", "18-contractors"], ["averages", "19-averages"], ["scripts", "20-scripts"], ["ranking", "21-ranking"], ["excel", "22-excel"], ["settings", "23-settings"]]) {
+    for (const [id, n] of [["scout", "12-scout"], ["signs", "13-signs"], ["contacts", "14-contacts"], ["requests", "15-requests"], ["handover", "16-handover"], ["stats", "17-stats"], ["contractors", "18-contractors"], ["averages", "19-averages"], ["scripts", "20-scripts"], ["ranking", "21-ranking"], ["excel", "22-excel"], ["legend", "25-legend"], ["settings", "23-settings"]]) {
       await more(id); if (id === "handover") { await page.check("#sub input[type=checkbox] >> nth=0"); await page.click("#ho-gen"); await page.waitForTimeout(300); } await shot(n);
     }
     await page.click('#tabs [data-panel="map"]'); await page.waitForTimeout(300); await page.evaluate(() => { localStorage.setItem("mustakshif.osm", "1"); }); await page.click("#btn-layers"); await page.waitForTimeout(1500); await shot("24-map-osm");

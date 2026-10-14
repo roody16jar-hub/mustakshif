@@ -96,7 +96,7 @@ async function pushPhotos(c) {
         await db.del("photos", p.id); continue;
       }
       if (!p.blob) { await db.mergeIn("photos", [p], (cur) => cur && !cur.deleted ? { ...cur, dirty: 0 } : null); continue; }
-      const { error } = await c.storage.from("photos").upload(p.path, p.blob, { upsert: true, contentType: "image/jpeg" });
+      const { error } = await c.storage.from("photos").upload(p.path, p.blob, { upsert: true, contentType: p.type || "image/jpeg" });
       if (error) throw error;
       await db.mergeIn("photos", [p], (cur) => cur && !cur.deleted ? { ...cur, dirty: 0 } : null);
     } catch (e) { failed = "صورة لم تُرفع: " + ((e && e.message) || e); console.error("photo", p.id, e); }
